@@ -1,0 +1,1 @@
+<p class="text-center">Something went wrong!</p>

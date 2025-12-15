@@ -1,0 +1,9 @@
+Konfiguracja danych do DB w pliku: Src/DB.php
+W folderze DB plik do utworzenia tabel w DB
+Plik wejściowy public/index.php
+
+Możliwe ulepszenia aplikacji
+1.	Walidacja danych – sprawdzanie istnienia użytkowników i grup, lepsze reguły walidacji, wyodrębnienie do osobnych klas.
+2.	CRUD i relacje wiele-do-wielu – unikanie duplikatów, synchronizacja relacji, uproszczenie powtarzającego się kodu.
+3.	Routing i architektura – zastąpienie switch w index.php klasą Router, wprowadzenie repository dla DB.
+4.	Lepsza kontrola danych i bezpieczeństwo – dane wprowadzane przez użytkownika mogły by być lepiej oczyszczone i sprawdzone.
