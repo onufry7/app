@@ -2,7 +2,7 @@
     <?= $title ?>
 </header>
 
-<form method="post" action="?action=<?= $action ?>">
+<form method="post" data-action="<?= $action ?>" id="userForm">
 
     <?php if($action === 'update-user'): ?>
         <input type="hidden" id="id" name="id" value="<?= $_POST['id'] ?? $user['id'] ?>">
@@ -34,6 +34,6 @@
     </div>
 
     <div>
-        <button type="submit">Save</button>
+        <button type="submit"><?= isset($user) ? 'Update' : 'Add' ?></button>
     </div>
 </form>

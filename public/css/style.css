@@ -90,6 +90,19 @@ button:hover {
 	background-color: #45a049;
 }
 
+button.link {
+	all: unset;
+	color: #4CAF50;
+	text-decoration: none;
+	cursor: pointer;
+	margin: 0;
+	padding: 0;
+}
+
+button.link:hover {
+	text-decoration: underline;
+}
+
 a {
 	color: #4CAF50;
 	text-decoration: none;
@@ -116,9 +129,11 @@ th {
 }
 
 .alert {
+	display: none;
 	padding: 10px;
 	margin-bottom: 15px;
 	border-radius: 4px;
+	text-align: center;
 }
 
 .text-center {
@@ -146,4 +161,16 @@ th {
 	border-top: #333 1px solid;
 	margin-top: 8px;
 	padding: 4px;
+}
+
+.deleteForm {
+	display: inline-flex;
+	row-gap: 4px;
+	margin: 0;
+	padding: 0;
+}
+
+.listItems {
+	display: inline-flex;
+	gap: 16px;
 }

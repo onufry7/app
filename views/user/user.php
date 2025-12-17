@@ -13,6 +13,9 @@
 </div>
 
 <div class="buttonsFooter">
-    <a href="index.php?action=edit-user&id=<?= htmlspecialchars($user['id']) ?>">Edit user</a>
-    <a href="index.php?action=delete-user&id=<?= htmlspecialchars($user['id']) ?>">Delete user</a>
+    <a href="index.php?action=edit-user&id=<?= htmlspecialchars($user['id']) ?>" title="edit user">Edit user</a>
+    <form method="post" data-action="delete-user" class="deleteForm">
+        <input type="hidden" name="id" value="<?= (int) $user['id'] ?>">
+        <button type="submit" class="link" title="remove user">Delete user</button>
+    </form>
 </div>

@@ -2,7 +2,7 @@
     <?= $title ?>
 </header>
 
-<form method="post" action="?action=<?= $action ?>">
+<form method="post" data-action="<?= $action ?>" id="groupForm">
 
     <?php if($action === 'update-group'): ?>
         <input type="hidden" id="id" name="id" value="<?= $_POST['id'] ?? $group['id'] ?>">
@@ -14,6 +14,6 @@
     </div>
 
     <div>
-        <button type="submit">Zapisz</button>
+        <button type="submit"><?= isset($group) ? 'Update' : 'Add' ?></button>
     </div>
 </form>

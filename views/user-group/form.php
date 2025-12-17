@@ -2,7 +2,7 @@
     <?= $title ?>
 </header>
 
-<form method="post" action="?action=store-user-group">
+<form method="post" data-action="store-user-group" id="userGroupForm">
 
     <input type="hidden" id="group_id" name="group_id" value="<?= $_GET['id'] ?? $group['id'] ?>">
 
@@ -18,6 +18,6 @@
     </div>
 
     <div>
-        <button type="submit">Zapisz</button>
+        <button type="submit">Save</button>
     </div>
 </form>

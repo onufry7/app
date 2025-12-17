@@ -3,6 +3,7 @@
 	<head>
 		<meta charset="UTF-8">
 		<link rel="stylesheet" href="css/style.css">
+		<script src="js/scripts.js" defer></script>
 		<title>App</title>
 	</head>
 	<body>
@@ -12,10 +13,8 @@
 				<a href="index.php?action=groups">Groups list</a>
 			</nav>
 
-            <?php if(isset($alert)): ?>
-                <div class="alert"><?= $alert ?></div>
-            <?php endif ?>
-
+            <div class="alert" id="alert"><?= $alert ?></div>
+            
 			<main>
 				<?=  $main ?? '' ?>
 			</main>

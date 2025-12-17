@@ -5,10 +5,21 @@ declare(strict_types=1);
 
 namespace App\Src;
 
-use \PDO;
 
+use PDO;
+
+
+/**
+ * Controller for managing groups.
+ *
+ */
 class GroupController extends Controller
 {
+    /**
+     * Get all groups from the database.
+     *
+     * @return array List of groups as associative arrays.
+     */
     public function getGroups(): array
     {
         return $this->pdo
@@ -16,6 +27,13 @@ class GroupController extends Controller
             ->fetchAll();
     }
 
+
+    /**
+     * Get a single group with its users.
+     *
+     * @param string $id Group ID.
+     * @return array|bool Group data with 'users' key, or false if not found
+     */
     public function showGroup(string $id): bool|array 
     {
         $stmtGroup = $this->pdo->prepare('SELECT * FROM groups WHERE id = :id');
@@ -35,7 +53,18 @@ class GroupController extends Controller
         return $group;
     }
 
-    public function storeGroup(array $data): bool|array
+
+    /**
+     * Store a new group in database.
+     *
+     * Validates data and returns a standardized response suitable for Ajax calls.
+     *
+     * @param array $data ['name' => string] Group data.
+     * @return array Returns an array with keys:
+     *               - 'success' => bool
+     *               - 'errors'  => array of validation errors (empty if none)
+     */
+    public function storeGroup(array $data): array
     {
         $data['name'] = trim($data['name'] ?? '');
 
@@ -46,12 +75,22 @@ class GroupController extends Controller
         );
         
         if(empty($errors)) {
-            return $stmt->execute(['name' => $data['name']]);
-        } else {
-            return $errors;
+            $saveResult = $stmt->execute(['name' => $data['name']]);
         }
+
+        $result = $this->createAjaxResponse($saveResult ?? false, $errors);
+        return $result;
     }
 
+
+    /**
+     *  Retrieves a single group data for editing.
+     *
+     * @param string $id Group ID
+     * 
+     * @return array Returns an associative array of group data.
+     * 
+     */
     public function editGroup(string $id): array
     {
         $stmt = $this->pdo->prepare('SELECT * FROM groups WHERE id = :id');
@@ -60,7 +99,20 @@ class GroupController extends Controller
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
 
-    public function updateGroup(array $data): bool|array
+
+    /**
+     * Updates an existing group data in the database.
+     * 
+     * Validate data and returns a standardized response suitable for Ajax calls.
+     *
+     * @param array $data Array containing keys: 'id', 'name'.
+     * 
+     * @return array Returns an array with keys:
+     *               - 'success' => bool
+     *               - 'errors'  => array of validation errors (empty if none)
+     * 
+     */
+    public function updateGroup(array $data): array
     {
         $data['id'] = trim($data['id'] ?? '');
         $data['name'] = trim($data['name'] ?? '');
@@ -70,26 +122,56 @@ class GroupController extends Controller
         $stmt = $this->pdo->prepare( 'UPDATE groups SET name = :name WHERE id = :id' );
 
         if(empty($errors)) {
-            return $stmt->execute([
+            $updateResult = $stmt->execute([
                 'id' => $data['id'], 
                 'name' => $data['name'],
             ]);
-        } else {
-            return $errors;
         }
+        
+        $result = $this->createAjaxResponse($updateResult ?? false, $errors);
+        return $result;
     }
 
-    public function deleteGroup(string $id): bool
+
+    /**
+     * Deletes a group by ID.
+     *
+     * @param string $id Group ID
+     * 
+     * @return array Returns an array with keys:
+     *               - 'success' => bool
+     *               - 'errors'  => array of validation errors (empty if none)
+     * 
+     */
+    public function deleteGroup(string $id): array
     {
-        $id = trim($id ?? '');
-        if(is_numeric($id)) {
+        $groupId = trim($id);
+
+        $errors = [];
+        !is_numeric($groupId) && $errors[] = 'Group Id is incorrect!';
+        
+        if(empty($errors)) {
             $stmt = $this->pdo->prepare('DELETE FROM groups WHERE id = :id');
-            return $stmt->execute(['id' => $id]);
+            $stmtResult = $stmt->execute(['id' => $groupId]);
         }
 
-        return false;
+        $isSuccess = (empty($errors) && $stmtResult) ? true : false;
+        $response = 'groups';
+        
+        $result = $this->createAjaxResponse($isSuccess, $errors, $response);
+        return $result;
     }
 
+    
+    /**
+     * Validates group data.
+     *
+     * @param array $data Array of group data to validate.
+     * @param bool $isUpdate If true, validates as an update.
+     * 
+     * @return array Array of error messages, empty if validation passed.
+     * 
+     */
     private function validation(array $data, bool $isUpdate = false): array
     {
         $errors = [];

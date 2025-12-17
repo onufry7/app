@@ -5,11 +5,24 @@ declare(strict_types=1);
 
 namespace App\Src;
 
-use \DateTime;
-use \PDO;
 
+use DateTime;
+use PDO;
+
+
+/**
+ * Controller for managing users.
+ * 
+ */
 class UserController extends Controller
 {
+
+    /**
+     * Returns all users from the database.
+     *
+     * @return array<int, array<string, mixed>> List of users
+     * 
+     */
     public function getUsers(): array
     {
         return $this->pdo
@@ -17,7 +30,16 @@ class UserController extends Controller
             ->fetchAll();
     }
 
-    public function showUser(string $id): bool|array 
+
+    /**
+     * Returns a single user by ID along with the groups they belong to.
+     *
+     * @param string $id User ID
+     * 
+     * @return array<string, mixed>|false User data with 'groups' key, or false if not found
+     * 
+     */
+    public function showUser(string $id): array|false 
     {
         $stmtUser = $this->pdo->prepare('SELECT * FROM users WHERE id = :id');
         $stmtUser->execute(['id' => $id]);
@@ -35,7 +57,19 @@ class UserController extends Controller
         return $user;
     }
 
-    public function storeUser(array $data): bool|array
+    
+    /**
+     * Stores a new user in the database.
+     *
+     * Validates data and returns a standardized response suitable for Ajax calls.
+     *
+     * @param array $data Array containing keys: 'name', 'password', 'first_name', 'last_name', 'birth_date'.
+     *
+     * @return array Returns an array with keys:
+     *               - 'success' => bool
+     *               - 'errors'  => array of validation errors (empty if none)
+     */
+    public function storeUser(array $data): array
     {
         $data['name'] = trim($data['name'] ?? '');
         $data['password'] = trim($data['password'] ?? '');
@@ -51,18 +85,27 @@ class UserController extends Controller
         );
         
         if(empty($errors)) {
-            return $stmt->execute([
+            $saveResult = $stmt->execute([
                 'name' => $data['name'],
                 'password' => password_hash($data['password'], PASSWORD_DEFAULT),
                 'first_name' => $data['first_name'] ?: null,
                 'last_name' => $data['last_name'] ?: null,
                 'birth_date' => $data['birth_date'] ?: null,
             ]);
-        } else {
-            return $errors;
         }
+
+        $result = $this->createAjaxResponse($saveResult ?? false, $errors);
+        return $result;
     }
 
+
+    /**
+     * Retrieves a single user data for editing.
+     *
+     * @param string $id User ID
+     *
+     * @return array Returns an associative array of user data.
+     */
     public function editUser(string $id): array
     {
         $stmt = $this->pdo->prepare('SELECT * FROM users WHERE id = :id');
@@ -71,7 +114,19 @@ class UserController extends Controller
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
 
-    public function updateUser(array $data): bool|array
+
+    /**
+     * Updates an existing user data in the database.
+     *
+     * Validate data and returns a standardized response suitable for Ajax calls.
+     *
+     * @param array $data Array containing keys: 'id', 'name', 'password', 'first_name', 'last_name', 'birth_date'.
+     *
+     * @return array Returns an array with keys:
+     *               - 'success' => bool
+     *               - 'errors'  => array of validation errors (empty if none)
+     */    
+    public function updateUser(array $data): array
     {
         $data['id'] = trim($data['id'] ?? '');
         $data['name'] = trim($data['name'] ?? '');
@@ -107,25 +162,56 @@ class UserController extends Controller
 
         $stmt = $this->pdo->prepare($sql);
 
-        
         if(empty($errors)) {
-            return $stmt->execute($params);
-        } else {
-            return $errors;
+            $updateResult = $stmt->execute($params);
         }
+
+        $result = $this->createAjaxResponse($updateResult ?? false, $errors);
+        return $result;
     }
 
-    public function deleteUser(string $id): bool
+
+    /**
+     * Deletes a user by ID.
+     *
+     * @param string $id User ID
+     *
+     * @return array Returns an array with keys:
+     *               - 'success' => bool
+     *               - 'errors'  => array of validation errors (empty if none)
+     * 
+     */
+    public function deleteUser(string $id): array
     {
-        $id = trim($id ?? '');
-        if(is_numeric($id)) {
+        $userId = trim($id ?? '');
+
+        $errors = [];
+        !is_numeric($userId) && $errors[] = 'User Id is incorrect!';
+        
+
+        if(empty($errors)) {
             $stmt = $this->pdo->prepare('DELETE FROM users WHERE id = :id');
-            return $stmt->execute(['id' => $id]);
+            $stmtResult = $stmt->execute(['id' => $userId]);
         }
 
-        return false;
+        $isSuccess = (empty($errors) && $stmtResult) ? true : false;
+        $response = 'users';
+        
+        $result = $this->createAjaxResponse($isSuccess, $errors, $response);
+        return $result;
     }
 
+
+    /**
+     * Validates user data.
+     *
+     * Checks required fields, string lengths, and date format.
+     *
+     * @param array $data Array of user data to validate.
+     * @param bool $isUpdate If true, validates as an update.
+     *
+     * @return array Array of error messages, empty if validation passed.
+     */
     private function validation(array $data, bool $isUpdate = false): array
     {
         $errors = [];
@@ -173,4 +259,5 @@ class UserController extends Controller
 
         return $errors;
     }
+
 }
