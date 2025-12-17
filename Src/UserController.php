@@ -36,10 +36,10 @@ class UserController extends Controller
      *
      * @param string $id User ID
      * 
-     * @return array<string, mixed>|false User data with 'groups' key, or false if not found
+     * @return array<string, mixed>|false User data with 'groups' key
      * 
      */
-    public function showUser(string $id): array|false 
+    public function showUser(string $id): array
     {
         $stmtUser = $this->pdo->prepare('SELECT * FROM users WHERE id = :id');
         $stmtUser->execute(['id' => $id]);

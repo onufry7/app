@@ -32,9 +32,9 @@ class GroupController extends Controller
      * Get a single group with its users.
      *
      * @param string $id Group ID.
-     * @return array|bool Group data with 'users' key, or false if not found
+     * @return array|bool Group data with 'users' key
      */
-    public function showGroup(string $id): bool|array 
+    public function showGroup(string $id): array 
     {
         $stmtGroup = $this->pdo->prepare('SELECT * FROM groups WHERE id = :id');
         $stmtGroup->execute(['id' => $id]);
